@@ -128,6 +128,20 @@ export function generate(params: GenParams): Composition {
 
   const spread = Math.max(1, Math.min(colorSpread, pal.colors.length));
   const activeColors = pal.colors.slice(0, spread);
+
+  // Shuffled color bag: each color appears ceil(bagSize/spread) times.
+  // Guarantees every color is visible before any color repeats twice.
+  const bagReps = Math.max(3, Math.ceil(40 / spread));
+  const colorBag: string[] = [];
+  for (let i = 0; i < bagReps; i++)
+    for (const c of activeColors) colorBag.push(c);
+  for (let i = colorBag.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [colorBag[i], colorBag[j]] = [colorBag[j], colorBag[i]];
+  }
+  let bagIdx = 0;
+  const nextColor = () => colorBag[bagIdx++ % colorBag.length];
+
   const rotOf = (): 0 | 1 | 2 | 3 =>
     (r() < rotationChance ? Math.floor(r() * 4) : 0) as 0 | 1 | 2 | 3;
 
@@ -164,7 +178,7 @@ export function generate(params: GenParams): Composition {
       y: cellY(by),
       w,
       h,
-      fill: pick(r, activeColors),
+      fill: nextColor(),
       rot: rotOf(),
       outline: params.shapeOutlines?.[catId] ?? false,
       outlineWidth: params.shapeOutlineWidth?.[catId] ?? 2,
@@ -186,7 +200,7 @@ export function generate(params: GenParams): Composition {
         y: cellY(y) + jy,
         w: cellW,
         h: cellH,
-        fill: pick(r, activeColors),
+        fill: nextColor(),
         rot: rotOf(),
         outline: params.shapeOutlines?.[catId] ?? false,
         outlineWidth: params.shapeOutlineWidth?.[catId] ?? 2,

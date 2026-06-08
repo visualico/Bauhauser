@@ -50,7 +50,7 @@ export function Variants({ params, imports = [], onSelect }: Props) {
               display: "flex",
             }}
           >
-            <Canvas composition={c} imports={imports} bordered={false} />
+            <Canvas composition={c} imports={imports} bordered={false} displaySize={60} />
           </button>
         );
       })}

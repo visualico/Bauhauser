@@ -16,7 +16,7 @@ import {
 import { loadGallery, saveGallery } from "./lib/storage";
 import { readHashParams, writeHashParams } from "./lib/urlState";
 import { PALETTES, getPalette } from "./lib/palettes";
-import { SHAPES } from "./lib/shapes";
+import { SHAPES, CATEGORIES, CATEGORY_OF } from "./lib/shapes";
 import type { ImportedSvg } from "./lib/svgImport";
 
 function clampZoom(z: number): number {
@@ -146,11 +146,15 @@ export default function App() {
       next.colorSpread = pal.colors.length; // full palette, no truncation
     }
 
-    // Pick a focused shape set (3–8 kinds) for coherent composition
+    // 1–2 shapes per category, no more
     if (!locks.has("enabledShapes")) {
-      const count = 3 + Math.floor(Math.random() * 6);
-      const shuffled = [...SHAPES].sort(() => Math.random() - 0.5);
-      next.enabledShapes = shuffled.slice(0, count);
+      const selected = CATEGORIES.flatMap((cat) => {
+        const pool = SHAPES.filter((s) => CATEGORY_OF[s] === cat.id)
+          .sort(() => Math.random() - 0.5);
+        const n = 1 + Math.floor(Math.random() * 2); // 1 or 2
+        return pool.slice(0, n);
+      });
+      next.enabledShapes = selected.sort(() => Math.random() - 0.5);
     }
 
     // Drastic composition swings — full range, no dampening

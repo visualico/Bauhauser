@@ -1,0 +1,20 @@
+@import './tailwind.css';
+@import './theme.css';
+
+input[type="color"].swatch-circle {
+  border-radius: 50%;
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="color"].swatch-circle::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type="color"].swatch-circle::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+input[type="color"].swatch-circle::-moz-color-swatch {
+  border: none;
+  border-radius: 50%;
+}

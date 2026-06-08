@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Shuffle, Save, Download, Share2, Undo2, Redo2, ZoomIn, ZoomOut, Maximize } from "lucide-react";
+import { Home, Shuffle, Save, Download, Share2, Undo2, Redo2, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Canvas } from "./components/Canvas";
 import { Variants } from "./components/Variants";
 import { StartPage } from "./components/StartPage";
-import { Gallery } from "./components/Gallery";
 import { SaveDialog } from "./components/SaveDialog";
 import {
   generate,
@@ -67,7 +66,6 @@ export default function App() {
   const [zoom, setZoom] = useState(1);
   const [pngScale, setPngScale] = useState(2);
   const [saveOpen, setSaveOpen] = useState(false);
-  const [showGallery, setShowGallery] = useState(false);
 
   const historyRef = useRef<GenParams[]>([params]);
   const historyIdxRef = useRef(0);
@@ -254,11 +252,6 @@ export default function App() {
     setParams({ seed });
   }
 
-  function handleGallerySelect(c: Composition) {
-    setParams(c.params);
-    setView("editor");
-  }
-
   function handleDeleteGalleryItem(id: string) {
     setGallery((g) => g.filter((c) => c.id !== id));
   }
@@ -274,6 +267,7 @@ export default function App() {
         imports={imports}
         onOpen={(c) => { setParams(c.params); setView("editor"); }}
         onDelete={handleDeleteGalleryItem}
+
         onDuplicate={handleDuplicateGalleryItem}
         onNew={() => setView("editor")}
       />
@@ -286,15 +280,18 @@ export default function App() {
       style={{ height: "100vh", background: "#e8e8e8", color: "#000", overflow: "hidden" }}
     >
       <header
-        className="flex items-center justify-end px-4 flex-shrink-0"
+        className="flex items-center justify-between px-4 flex-shrink-0"
         style={{
           height: 44,
           background: "#e8e8e8",
           borderBottom: "1px solid rgba(0,0,0,0.10)",
           zIndex: 10,
-          gap: 2,
         }}
       >
+        <button onClick={() => setView("start")} aria-label="Home" title="Home" style={toolBtn}>
+          <Home size={13} />
+        </button>
+        <div className="flex items-center" style={{ gap: 2 }}>
         <button onClick={undo} disabled={!canUndo} aria-label="Undo" title="Undo (⌘Z)"
           style={{ ...toolBtn, opacity: canUndo ? 1 : 0.3 }}>
           <Undo2 size={13} />
@@ -321,24 +318,13 @@ export default function App() {
         <button onClick={handleShare} style={toolBtn} title="Copy share link">
           <Share2 size={13} />
         </button>
-        <button
-          onClick={() => setShowGallery((x) => !x)}
-          style={{
-            ...toolBtn,
-            background: showGallery ? "#000" : "transparent",
-            color: showGallery ? "#fff" : "#000",
-          }}
-          title="Toggle gallery"
-        >
-          <span style={micro}>Gallery ({gallery.length})</span>
-        </button>
+        </div>
       </header>
 
       <div className="flex flex-1 min-h-0">
         <Sidebar
           params={params}
           onChange={setParams}
-          onHome={() => setView("start")}
           onAddImport={handleAddImport}
           onUpdateImport={handleUpdateImport}
           onRemoveImport={handleRemoveImport}
@@ -399,9 +385,6 @@ export default function App() {
           </div>
         </main>
 
-        {showGallery && (
-          <Gallery items={gallery} imports={imports} onSelect={handleGallerySelect} />
-        )}
       </div>
 
       {saveOpen && (

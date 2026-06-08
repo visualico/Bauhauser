@@ -1,4 +1,4 @@
-import { Home, Lock, Unlock } from "lucide-react";
+import { Lock, Unlock } from "lucide-react";
 import { FormatPicker } from "./FormatPicker";
 import { PalettePicker } from "./PalettePicker";
 import { ShapePicker } from "./ShapePicker";
@@ -10,7 +10,6 @@ import type { ImportedSvg } from "../lib/svgImport";
 type Props = {
   params: GenParams;
   onChange: (p: Partial<GenParams>) => void;
-  onHome: () => void;
   onAddImport: (im: ImportedSvg) => void;
   onUpdateImport: (id: string, patch: Partial<ImportedSvg>) => void;
   onRemoveImport: (id: string) => void;
@@ -81,7 +80,7 @@ function Slider({
 
 export function Sidebar(props: Props) {
   const {
-    params, onChange, onHome,
+    params, onChange,
     onAddImport, onUpdateImport, onRemoveImport,
     locks, onToggleLock,
   } = props;
@@ -119,30 +118,6 @@ export function Sidebar(props: Props) {
         flexShrink: 0,
       }}
     >
-      <div
-        className="px-5 flex items-center"
-        style={{ borderBottom: "1px solid rgba(0,0,0,0.08)", height: 57 }}
-      >
-        <button
-          onClick={onHome}
-          aria-label="Home"
-          style={{
-            background: "none",
-            border: "1px solid transparent",
-            padding: 5,
-            cursor: "pointer",
-            display: "flex",
-            transition: "border-color 120ms",
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "transparent"; }}
-          onMouseDown={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.23)"; }}
-          onMouseUp={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"; }}
-        >
-          <Home size={12} />
-        </button>
-      </div>
-
       <Section title="Shapes" meta={`${params.enabledShapes.length}`} right={lock("enabledShapes")}>
         <ShapePicker
           enabled={params.enabledShapes}

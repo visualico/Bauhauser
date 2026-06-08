@@ -136,24 +136,39 @@ export default function App() {
 
   function handleRandomize() {
     const next: Partial<GenParams> = {};
+
     if (!locks.has("seed")) next.seed = randomSeed();
+
+    // Always pick a fresh palette and expose ALL its colors
     if (!locks.has("paletteId")) {
       next.paletteId = PALETTES[Math.floor(Math.random() * PALETTES.length)].id;
     }
+    if (!locks.has("colorSpread")) {
+      const pal = getPalette(next.paletteId ?? params.paletteId);
+      next.colorSpread = pal.colors.length; // full palette, no truncation
+    }
+
+    // Pick a focused shape set (3–8 kinds) for coherent composition
     if (!locks.has("enabledShapes")) {
-      const count = Math.max(1, Math.floor(Math.random() * SHAPES.length));
+      const count = 3 + Math.floor(Math.random() * 6);
       const shuffled = [...SHAPES].sort(() => Math.random() - 0.5);
       next.enabledShapes = shuffled.slice(0, count);
     }
-    if (!locks.has("density")) next.density = Math.random();
-    if (!locks.has("jitter")) next.jitter = Math.random();
+
+    // Drastic composition swings — full range, no dampening
+    if (!locks.has("density"))        next.density        = 0.4 + Math.random() * 0.6;
+    if (!locks.has("jitter"))         next.jitter         = Math.random();
     if (!locks.has("rotationChance")) next.rotationChance = Math.random();
-    if (!locks.has("mergeChance")) next.mergeChance = Math.random() * 0.5;
-    if (!locks.has("colorSpread")) {
-      const palId = next.paletteId ?? params.paletteId;
-      const pal = getPalette(palId);
-      next.colorSpread = Math.max(1, Math.floor(Math.random() * pal.colors.length) + 1);
-    }
+    if (!locks.has("mergeChance"))    next.mergeChance    = Math.random() * 0.8;
+
+    // Vary grid for structural variety
+    if (!locks.has("cols")) next.cols = 4 + Math.floor(Math.random() * 10);
+    if (!locks.has("rows")) next.rows = 4 + Math.floor(Math.random() * 10);
+    if (!locks.has("gutter")) next.gutter = Math.floor(Math.random() * 20);
+
+    // Occasionally invert for contrast
+    if (!locks.has("invertColors")) next.invertColors = Math.random() < 0.25;
+
     setParams(next);
   }
 

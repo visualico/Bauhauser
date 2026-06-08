@@ -19,7 +19,6 @@ import { readHashParams, writeHashParams } from "./lib/urlState";
 import { PALETTES, getPalette } from "./lib/palettes";
 import { SHAPES } from "./lib/shapes";
 import type { ImportedSvg } from "./lib/svgImport";
-import { MOODS } from "./lib/moods";
 
 function clampZoom(z: number): number {
   return Math.max(0.25, Math.min(3, z));
@@ -158,12 +157,6 @@ export default function App() {
     setParams(next);
   }
 
-  function handleApplyMood(moodId: string) {
-    const mood = MOODS.find((m) => m.id === moodId);
-    if (!mood) return;
-    setParams(mood.apply(params));
-  }
-
   function handleSave(name: string, author: string) {
     const svgBody = composition.shapes.map((s) => shapeToSvg(s, imports)).join("");
     const comp: Composition = {
@@ -278,67 +271,52 @@ export default function App() {
       style={{ height: "100vh", background: "#e8e8e8", color: "#000", overflow: "hidden" }}
     >
       <header
-        className="flex items-center justify-between px-5 flex-shrink-0"
+        className="flex items-center justify-end px-4 flex-shrink-0"
         style={{
-          height: 57,
-          background: "#fff",
-          borderBottom: "1px solid rgba(0,0,0,0.08)",
+          height: 44,
+          background: "#e8e8e8",
+          borderBottom: "1px solid rgba(0,0,0,0.10)",
           zIndex: 10,
+          gap: 2,
         }}
       >
-        <div className="flex items-center gap-3">
-          <span style={{ ...micro, fontSize: 13 }}>Bauhauser</span>
-          <select
-            value=""
-            onChange={(e) => { if (e.target.value) { handleApplyMood(e.target.value); e.target.value = ""; } }}
-            style={{ ...micro, border: "1px solid rgba(0,0,0,0.2)", background: "#fff", padding: "4px 8px", cursor: "pointer" }}
-          >
-            <option value="">Mood…</option>
-            {MOODS.map((m) => (
-              <option key={m.id} value={m.id}>{m.label}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <button onClick={undo} disabled={!canUndo} aria-label="Undo" title="Undo (⌘Z)"
-            style={{ ...toolBtn, opacity: canUndo ? 1 : 0.3 }}>
-            <Undo2 size={13} />
-          </button>
-          <button onClick={redo} disabled={!canRedo} aria-label="Redo" title="Redo (⌘⇧Z)"
-            style={{ ...toolBtn, opacity: canRedo ? 1 : 0.3 }}>
-            <Redo2 size={13} />
-          </button>
-          <span style={{ width: 1, height: 20, background: "rgba(0,0,0,0.1)", margin: "0 4px", flexShrink: 0 }} />
-          <button onClick={handleRandomize} style={toolBtn} aria-label="Randomize" title="Randomize (R)">
-            <Shuffle size={13} />
-          </button>
-          <button onClick={() => setSaveOpen(true)} style={toolBtn} aria-label="Save" title="Save (⌘S)">
-            <Save size={13} />
-          </button>
-          <button onClick={handleDownloadSvg} style={toolBtn} title="Download SVG">
-            <Download size={13} />
-            <span style={{ ...micro, marginLeft: 4 }}>SVG</span>
-          </button>
-          <button onClick={handleDownloadPng} style={toolBtn} title="Download PNG">
-            <Download size={13} />
-            <span style={{ ...micro, marginLeft: 4 }}>PNG</span>
-          </button>
-          <button onClick={handleShare} style={toolBtn} title="Copy share link">
-            <Share2 size={13} />
-          </button>
-          <button
-            onClick={() => setShowGallery((x) => !x)}
-            style={{
-              ...toolBtn,
-              background: showGallery ? "#000" : "transparent",
-              color: showGallery ? "#fff" : "#000",
-            }}
-            title="Toggle gallery"
-          >
-            <span style={micro}>Gallery ({gallery.length})</span>
-          </button>
-        </div>
+        <button onClick={undo} disabled={!canUndo} aria-label="Undo" title="Undo (⌘Z)"
+          style={{ ...toolBtn, opacity: canUndo ? 1 : 0.3 }}>
+          <Undo2 size={13} />
+        </button>
+        <button onClick={redo} disabled={!canRedo} aria-label="Redo" title="Redo (⌘⇧Z)"
+          style={{ ...toolBtn, opacity: canRedo ? 1 : 0.3 }}>
+          <Redo2 size={13} />
+        </button>
+        <span style={{ width: 1, height: 16, background: "rgba(0,0,0,0.15)", margin: "0 2px", flexShrink: 0 }} />
+        <button onClick={handleRandomize} style={toolBtn} aria-label="Randomize" title="Randomize (R)">
+          <Shuffle size={13} />
+        </button>
+        <button onClick={() => setSaveOpen(true)} style={toolBtn} aria-label="Save" title="Save (⌘S)">
+          <Save size={13} />
+        </button>
+        <button onClick={handleDownloadSvg} style={toolBtn} title="Download SVG">
+          <Download size={13} />
+          <span style={{ ...micro, marginLeft: 4 }}>SVG</span>
+        </button>
+        <button onClick={handleDownloadPng} style={toolBtn} title="Download PNG">
+          <Download size={13} />
+          <span style={{ ...micro, marginLeft: 4 }}>PNG</span>
+        </button>
+        <button onClick={handleShare} style={toolBtn} title="Copy share link">
+          <Share2 size={13} />
+        </button>
+        <button
+          onClick={() => setShowGallery((x) => !x)}
+          style={{
+            ...toolBtn,
+            background: showGallery ? "#000" : "transparent",
+            color: showGallery ? "#fff" : "#000",
+          }}
+          title="Toggle gallery"
+        >
+          <span style={micro}>Gallery ({gallery.length})</span>
+        </button>
       </header>
 
       <div className="flex flex-1 min-h-0">

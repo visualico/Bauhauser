@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { SHAPES, CATEGORIES, CATEGORY_OF, type ShapeKind } from "../lib/shapes";
+import { SHAPES, CATEGORIES, CATEGORY_OF, renderShape, type ShapeKind } from "../lib/shapes";
 import { ImportsPanel } from "./ImportsPanel";
 import type { ImportedSvg } from "../lib/svgImport";
 
@@ -24,41 +24,40 @@ const micro: React.CSSProperties = {
   textTransform: "uppercase",
 };
 
-function ShapeBtn({ shape, enabled, onToggle }: {
-  shape: ShapeKind; enabled: boolean; onToggle: () => void;
+const THUMB = 32; // thumbnail render size
+
+function ShapeThumb({ shape, enabled, onToggle }: {
+  shape: ShapeKind;
+  enabled: boolean;
+  onToggle: () => void;
 }) {
+  const svgBody = renderShape(shape, enabled ? "#fff" : "#000", 4, 4, THUMB - 8, THUMB - 8);
   return (
     <button
       onClick={onToggle}
       title={shape}
       aria-pressed={enabled}
       style={{
-        border: enabled ? "1px solid #000" : "1px solid rgba(0,0,0,0.12)",
+        width: THUMB + 4,
+        height: THUMB + 4,
+        border: enabled ? "1.5px solid #000" : "1px solid rgba(0,0,0,0.14)",
         background: enabled ? "#000" : "#fff",
-        color: enabled ? "#fff" : "rgba(0,0,0,0.35)",
-        width: 36,
-        height: 36,
         cursor: "pointer",
+        padding: 0,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: 10,
-        letterSpacing: 1,
-        textTransform: "uppercase",
-        overflow: "hidden",
-        padding: 2,
+        flexShrink: 0,
+        position: "relative",
       }}
     >
-      <span style={{
-        display: "block",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-        maxWidth: "100%",
-        fontSize: 8,
-      }}>
-        {shape.slice(0, 4)}
-      </span>
+      <svg
+        width={THUMB}
+        height={THUMB}
+        viewBox={`0 0 ${THUMB} ${THUMB}`}
+        style={{ display: "block", overflow: "visible" }}
+        dangerouslySetInnerHTML={{ __html: svgBody }}
+      />
     </button>
   );
 }
@@ -74,7 +73,7 @@ export function ShapePicker(props: Props) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       {CATEGORIES.map((cat) => {
         const kinds = SHAPES.filter((s) => CATEGORY_OF[s] === cat.id);
         const allOn = kinds.every((k) => enabledSet.has(k));
@@ -87,7 +86,10 @@ export function ShapePicker(props: Props) {
           <div key={cat.id} style={{ border: "1px solid rgba(0,0,0,0.10)" }}>
             <div
               className="flex items-center px-2 py-1.5"
-              style={{ background: "rgba(0,0,0,0.03)", borderBottom: open ? "1px solid rgba(0,0,0,0.08)" : "none" }}
+              style={{
+                background: "rgba(0,0,0,0.03)",
+                borderBottom: open ? "1px solid rgba(0,0,0,0.08)" : "none",
+              }}
             >
               <button
                 onClick={() => setCollapsed((c) => ({ ...c, [cat.id]: !c[cat.id] }))}
@@ -97,16 +99,12 @@ export function ShapePicker(props: Props) {
                 {open ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
               </button>
               <span style={{ ...micro, flex: 1, marginLeft: 4 }}>{cat.label}</span>
+              <span style={{ ...micro, opacity: 0.35, marginRight: 8, fontSize: 9 }}>
+                {kinds.filter((k) => enabledSet.has(k)).length}/{kinds.length}
+              </span>
               <button
                 onClick={() => onToggleAll(kinds, !allOn)}
-                style={{
-                  ...micro,
-                  border: "none",
-                  background: "none",
-                  cursor: "pointer",
-                  opacity: anyOn ? 1 : 0.4,
-                  paddingRight: 0,
-                }}
+                style={{ ...micro, border: "none", background: "none", cursor: "pointer", opacity: anyOn ? 1 : 0.4, paddingRight: 0, fontSize: 9 }}
                 title={allOn ? "Deselect all" : "Select all"}
               >
                 {allOn ? "None" : "All"}
@@ -117,7 +115,7 @@ export function ShapePicker(props: Props) {
               <div className="p-2">
                 <div className="flex flex-wrap gap-1">
                   {kinds.map((k) => (
-                    <ShapeBtn
+                    <ShapeThumb
                       key={k}
                       shape={k}
                       enabled={enabledSet.has(k)}
@@ -125,15 +123,17 @@ export function ShapePicker(props: Props) {
                     />
                   ))}
                 </div>
+
                 <div className="flex items-center gap-2 mt-2">
                   <button
                     onClick={() => onToggleOutline(cat.id)}
                     style={{
                       ...micro,
+                      fontSize: 9,
                       border: "1px solid #000",
                       background: outlineOn ? "#000" : "#fff",
                       color: outlineOn ? "#fff" : "#000",
-                      padding: "3px 8px",
+                      padding: "2px 8px",
                       cursor: "pointer",
                     }}
                   >
@@ -164,12 +164,7 @@ export function ShapePicker(props: Props) {
           <span style={micro}>Imports</span>
         </div>
         <div className="p-2">
-          <ImportsPanel
-            imports={imports}
-            onAdd={onAddImport}
-            onUpdate={onUpdateImport}
-            onRemove={onRemoveImport}
-          />
+          <ImportsPanel imports={imports} onAdd={onAddImport} onUpdate={onUpdateImport} onRemove={onRemoveImport} />
         </div>
       </div>
     </div>
